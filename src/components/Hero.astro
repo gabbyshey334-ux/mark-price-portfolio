@@ -1,0 +1,402 @@
+---
+// Kern-style hero: full-bleed portrait, cursor brush reveal, parallax,
+// two-line role, and a name that fills the full width.
+import { profile } from '../data/profile';
+
+// portrait-cut.webp is generated from public/hero/portrait.jpg and keeps its
+// transparent background, so the hero's grey shows around it at any screen
+// shape. `reveal` can be a different shot (Kern reveals a second image); with
+// the same file, the base shows in black and white and the brush reveals colour.
+const base = '/hero/portrait-cut.webp';
+const reveal = '/hero/portrait-cut.webp';
+---
+
+<section class="hero" aria-labelledby="hero-name" data-hero>
+  <div class="media" data-parallax>
+    <img class="base" src={base} alt="Portrait of Mark Price" width="1216" height="1293" fetchpriority="high" />
+    <canvas class="brush" data-brush data-src={reveal} aria-hidden="true"></canvas>
+  </div>
+
+  <div class="copy">
+    <div class="lines">
+      <p class="role"><span>{profile.role}</span></p>
+      <p class="loc"><span>Based in Michigan - open to freelance</span></p>
+    </div>
+    <h1 id="hero-name" class="name" data-fit><span>{profile.name}</span></h1>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    /* Exactly one screen on every device (svh avoids mobile browser-bar jumps). */
+    height: 100vh;
+    height: 100svh;
+    min-height: 520px;
+    overflow: clip;
+    background: #b1b1b1;
+    color: #fff;
+    font-family: 'Geist', var(--font);
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .media {
+    position: absolute;
+    /* Portrait stands on the bottom edge with headroom above for the nav. */
+    inset: auto 0 0 0;
+    height: 92%;
+    will-change: transform;
+  }
+  .base,
+  .brush {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .base {
+    /* Wide screens: show the whole portrait, head to shoulders. */
+    object-fit: contain;
+    object-position: center bottom;
+    filter: grayscale(1);
+  }
+  /* Tall screens (phones): fill the screen, cropping the sides only. */
+  @media (max-aspect-ratio: 1/1) {
+    .base {
+      object-fit: cover;
+    }
+  }
+  .brush {
+    pointer-events: none;
+  }
+  /* Soft fade under the text so the lines stay readable over a white shirt. */
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 45%;
+    background: linear-gradient(to bottom, rgba(10, 10, 10, 0), rgba(10, 10, 10, 0.55));
+    pointer-events: none;
+  }
+  .copy {
+    z-index: 1;
+  }
+  .lines {
+    text-shadow: 0 1px 14px rgba(0, 0, 0, 0.45);
+  }
+
+  .copy {
+    position: relative;
+    width: 100%;
+    padding: 0 20px;
+    display: grid;
+    gap: 20px;
+  }
+  .lines {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+    text-transform: uppercase;
+  }
+  .lines p {
+    max-width: none;
+    overflow: hidden;
+  }
+  .lines span,
+  .name span {
+    display: inline-block;
+  }
+  .role {
+    color: #ffff00;
+  }
+  .name {
+    margin: 0;
+    color: #ffff00;
+    font-family: 'Geist', var(--font);
+    font-weight: 900;
+    font-stretch: 100%;
+    /* Fallback before the fit script runs; JS sets the exact size. */
+    font-size: 21vw;
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    padding-bottom: 0.04em;
+    text-wrap: nowrap;
+  }
+
+  /* Load sequence: lines and name rise out of their own mask. */
+  @media (prefers-reduced-motion: no-preference) {
+    .lines span,
+    .name span {
+      animation: rise 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .role span {
+      animation-delay: 250ms;
+    }
+    .loc span {
+      animation-delay: 330ms;
+    }
+    .name span {
+      animation-delay: 420ms;
+    }
+    .base {
+      animation: settle 1600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(110%);
+      opacity: 0;
+    }
+  }
+  @keyframes settle {
+    from {
+      transform: scale(1.06);
+    }
+  }
+</style>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* 1. Fit the name to the full width of the hero. */
+  const fitEl = document.querySelector<HTMLElement>('[data-fit]');
+  const fitSpan = fitEl?.querySelector('span');
+  const fit = () => {
+    if (!fitEl || !fitSpan) return;
+    fitEl.style.fontSize = '100px';
+    const ratio = fitEl.clientWidth / fitSpan.getBoundingClientRect().width;
+    fitEl.style.fontSize = `${Math.floor(100 * ratio * 10) / 10}px`;
+  };
+  fit();
+  document.fonts?.ready.then(fit);
+  if (fitEl) new ResizeObserver(fit).observe(fitEl);
+
+  /* 2. Parallax: the photo moves at 90% of scroll speed. */
+  const media = document.querySelector<HTMLElement>('[data-parallax]');
+  if (hero && media && !reduce) {
+    let ticking = false;
+    const update = () => {
+      const y = Math.min(window.scrollY, hero.offsetHeight);
+      media.style.transform = `translate3d(0, ${y * 0.1}px, 0)`;
+      ticking = false;
+    };
+    addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) requestAnimationFrame(update);
+        ticking = true;
+      },
+      { passive: true },
+    );
+  }
+
+  /* 3. Paint-blob reveal (Kern-style).
+     The pointer leaves a trail of blobs. Each blob is a cluster of soft circles
+     drawn into a small mask, then the mask is thresholded so overlapping blobs
+     merge into one crisp, organic shape (metaballs). Blobs grow in, hold, then
+     shrink away from the tail; the blob under a resting cursor slowly swells.
+     A few small droplets splash off the stroke. */
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-brush]');
+  if (hero && canvas && matchMedia('(hover: hover)').matches) {
+    const ctx = canvas.getContext('2d')!;
+    const MASK_SCALE = 0.35; // mask resolution vs CSS px; upscaling smooths edges
+    const mask = document.createElement('canvas');
+    const mctx = mask.getContext('2d', { willReadFrequently: true })!;
+    const img = new Image();
+    img.src = canvas.dataset.src!;
+    const baseImg = hero.querySelector<HTMLImageElement>('img')!;
+    const PAPER = '#dedede'; // what the stroke paints over the backdrop
+
+    // One soft circle sprite, stamped many times per frame (cheap).
+    const sprite = document.createElement('canvas');
+    sprite.width = sprite.height = 64;
+    const sctx = sprite.getContext('2d')!;
+    const g = sctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+    g.addColorStop(0, 'rgba(0,0,0,1)');
+    g.addColorStop(0.55, 'rgba(0,0,0,0.6)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    sctx.fillStyle = g;
+    sctx.fillRect(0, 0, 64, 64);
+
+    type Blob = {
+      x: number;
+      y: number;
+      r: number;
+      born: number;
+      hold: number;
+      fade: number;
+      swell: number;
+      parts: { dx: number; dy: number; s: number }[];
+    };
+    let blobs: Blob[] = [];
+    let head: Blob | null = null;
+    let last: { x: number; y: number } | null = null;
+    let inside = false;
+    let running = false;
+    let w = 0;
+    let h = 0;
+    let dpr = 1;
+    let prev = performance.now();
+
+    const resize = () => {
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      mask.width = Math.max(1, Math.round(w * MASK_SCALE));
+      mask.height = Math.max(1, Math.round(h * MASK_SCALE));
+    };
+    resize();
+    new ResizeObserver(resize).observe(canvas);
+
+    const radius = () => Math.min(96, Math.max(40, Math.min(w, h) * 0.07));
+
+    const makeBlob = (x: number, y: number, r: number, hold: number, fade: number): Blob => {
+      const n = 3 + Math.floor(Math.random() * 3);
+      const parts = Array.from({ length: n }, () => ({
+        dx: (Math.random() - 0.5) * r * 1.4,
+        dy: (Math.random() - 0.5) * r * 1.4,
+        s: 0.35 + Math.random() * 0.75,
+      }));
+      return { x, y, r, born: performance.now(), hold, fade, swell: 1, parts };
+    };
+
+    const spawn = (x: number, y: number) => {
+      const r = radius();
+      head = makeBlob(x, y, r, 450, 1500 + Math.random() * 700);
+      blobs.push(head);
+      // Occasional droplet flung off the stroke.
+      if (Math.random() < 0.14) {
+        const a = Math.random() * Math.PI * 2;
+        const d = r * (1.3 + Math.random() * 0.9);
+        blobs.push(makeBlob(x + Math.cos(a) * d, y + Math.sin(a) * d, r * (0.13 + Math.random() * 0.1), 250, 900));
+      }
+      if (blobs.length > 220) blobs.splice(0, blobs.length - 220);
+    };
+
+    // Life curve: quick ease-out grow, hold, ease-in shrink. Returns 0..1 scale.
+    const lifeScale = (b: Blob, now: number) => {
+      // rAF's timestamp can be slightly older than a blob born mid-frame; clamp at 0.
+      const t = Math.max(0, now - b.born);
+      const grow = 180;
+      if (t < grow) return 1 - Math.pow(1 - t / grow, 3);
+      if (t < grow + b.hold) return 1;
+      const k = (t - grow - b.hold) / b.fade;
+      return k >= 1 ? 0 : 1 - k * k;
+    };
+
+    // Same placement as the base photo: object-fit from CSS, centred, on the bottom edge.
+    const fitRect = () => {
+      const fit = getComputedStyle(baseImg).objectFit;
+      const sx = w / img.naturalWidth;
+      const sy = h / img.naturalHeight;
+      const s = fit === 'contain' ? Math.min(sx, sy) : Math.max(sx, sy);
+      const dw = img.naturalWidth * s;
+      const dh = img.naturalHeight * s;
+      return { x: (w - dw) / 2, y: h - dh, w: dw, h: dh };
+    };
+
+    const frame = (now: number) => {
+      const dt = Math.min(64, now - prev);
+      prev = now;
+
+      // A resting cursor keeps its blob alive and lets it swell.
+      if (head && inside) {
+        const age = now - head.born;
+        if (age > 180 + head.hold - 50) head.born = now - 180 - head.hold + 50;
+        head.swell = Math.min(1.45, head.swell + dt * 0.00018);
+      }
+
+      // 1. Draw soft blobs into the low-res mask.
+      const mw = mask.width;
+      const mh = mask.height;
+      mctx.clearRect(0, 0, mw, mh);
+      const alive: Blob[] = [];
+      for (const b of blobs) {
+        // Remove only once the full life has run; a newborn blob also has scale 0.
+        if (now - b.born > 180 + b.hold + b.fade) continue;
+        alive.push(b);
+        const s = lifeScale(b, now) * b.swell;
+        if (s <= 0) continue;
+        for (const p of b.parts) {
+          const rr = b.r * p.s * s * MASK_SCALE * 1.15;
+          const cx = (b.x + p.dx * s) * MASK_SCALE;
+          const cy = (b.y + p.dy * s) * MASK_SCALE;
+          mctx.drawImage(sprite, cx - rr, cy - rr, rr * 2, rr * 2);
+        }
+      }
+      blobs = alive;
+      if (head && !blobs.includes(head)) head = null;
+
+      // 2. Threshold alpha so the soft clusters become one crisp shape.
+      if (blobs.length) {
+        const data = mctx.getImageData(0, 0, mw, mh);
+        const px = data.data;
+        for (let i = 3; i < px.length; i += 4) {
+          const a = px[i];
+          // Narrow ramp around the threshold keeps edges anti-aliased after upscaling.
+          px[i] = a < 150 ? 0 : a > 186 ? 255 : ((a - 150) * 255) / 36;
+        }
+        mctx.putImageData(data, 0, 0);
+      }
+
+      // 3. Show the colour photo (on light paper) only inside the mask.
+      ctx.clearRect(0, 0, w, h);
+      if (blobs.length && img.complete && img.naturalWidth) {
+        ctx.fillStyle = PAPER;
+        ctx.fillRect(0, 0, w, h);
+        const r = fitRect();
+        ctx.drawImage(img, r.x, r.y, r.w, r.h);
+        ctx.globalCompositeOperation = 'destination-in';
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(mask, 0, 0, w, h);
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      if (blobs.length) requestAnimationFrame(frame);
+      else running = false;
+    };
+
+    const kick = () => {
+      if (!running) {
+        running = true;
+        prev = performance.now();
+        requestAnimationFrame(frame);
+      }
+    };
+
+    hero.addEventListener('pointerenter', () => (inside = true));
+    hero.addEventListener('pointermove', (e) => {
+      inside = true;
+      const rect = canvas.getBoundingClientRect();
+      const p = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      const step = radius() * 0.6;
+      if (!last) {
+        spawn(p.x, p.y);
+        last = p;
+      } else {
+        // Lay blobs evenly along the path so fast moves stay continuous.
+        let dist = Math.hypot(p.x - last.x, p.y - last.y);
+        while (dist >= step) {
+          const t = step / dist;
+          last = { x: last.x + (p.x - last.x) * t, y: last.y + (p.y - last.y) * t };
+          spawn(last.x, last.y);
+          dist -= step;
+        }
+      }
+      kick();
+    });
+    hero.addEventListener('pointerleave', () => {
+      inside = false;
+      last = null;
+    });
+  }
+</script>

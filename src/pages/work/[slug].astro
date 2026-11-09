@@ -1,0 +1,520 @@
+---
+// Case-study page, following Leo Marlowe's case page: back pill, app-icon tile,
+// big title beside the summary, a parallax cover, details beside the story,
+// and a "Next project" row.
+import Base from '../../layouts/Base.astro';
+import { projects, type Project } from '../../data/projects';
+import { profile } from '../../data/profile';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+const { project } = Astro.props as { project: Project };
+const i = projects.findIndex((p) => p.slug === project.slug);
+const next = projects[(i + 1) % projects.length];
+
+const details = [
+  { label: 'Client', value: project.client },
+  { label: project.place ? 'Location' : 'Sector', value: project.place ?? project.sector },
+  { label: 'Built with', value: project.stack.join(', ') },
+];
+
+const roll = (text: string) => [...text].map((ch) => (ch === ' ' ? ' ' : ch));
+---
+
+<Base title={`${project.client}: ${project.title}`} description={project.summary}>
+  <article class="case" style={`--tone:${project.tone}`} data-case>
+    <a class="back" href="/#work">
+      <span class="back-arrow" aria-hidden="true">←</span>
+      <span class="roll" aria-label="All work">
+        {roll('All work').map((c, j) => (
+          <span class="ch" style={`--j:${j}`} aria-hidden="true"><span>{c}</span></span>
+        ))}
+      </span>
+    </a>
+
+    <span class="app" aria-hidden="true">{project.client.charAt(0)}</span>
+
+    <p class="meta"><span>{project.sector}</span><span>/</span><span>{project.stack[0]}</span></p>
+
+    <header class="head">
+      <h1>{project.client}</h1>
+      <div class="summary">
+        <p>{project.title}.</p>
+        {
+          project.url && (
+            <a class="live" href={project.url} target="_blank" rel="noopener">
+              Visit the live site <span aria-hidden="true">↗</span>
+              <span class="visually-hidden"> (opens in a new tab)</span>
+            </a>
+          )
+        }
+      </div>
+    </header>
+
+    <figure class="cover" data-cover>
+      {
+        (project.wide || project.image) && (
+          <img
+            src={project.wide ?? project.image}
+            alt={`${project.client} website home page`}
+            width="1200"
+            height="840"
+            fetchpriority="high"
+            data-parallax
+          />
+        )
+      }
+    </figure>
+
+    <div class="body">
+      <aside class="details" aria-labelledby="details-title">
+        <p id="details-title" class="label">(Project details)</p>
+        <dl>
+          {
+            details.map((d) => (
+              <div class="row">
+                <dt>{d.label}</dt>
+                <dd>{d.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </aside>
+
+      <div class="story">
+        <h2>{project.story.heading}</h2>
+        <p>{project.story.intro}</p>
+        <h3>{project.story.subheading}</h3>
+        <p>{project.story.body}</p>
+        <ul class="built">
+          {project.built.map((b) => <li>{b}</li>)}
+        </ul>
+        {
+          project.results && (
+            <p class="result">
+              {project.results.map((r) => `${r.label}: ${r.before} → ${r.after}`).join(' · ')}
+            </p>
+          )
+        }
+        <p class="process">
+          My usual process: backup first, every change on staging, tested on phone and desktop, then a plain-English
+          handover.
+        </p>
+        <a class="talk" href={`mailto:${profile.email}?subject=${encodeURIComponent(`A site like ${project.client}`)}`}>
+          Email me about your site
+        </a>
+      </div>
+    </div>
+
+    <a class="next" href={`/work/${next.slug}/`}>
+      <div class="next-text">
+        <p class="label">Next project</p>
+        <p class="next-name" aria-label={next.client}>
+          {next.client.split(' ').map((word, w, words) => {
+            const offset = words.slice(0, w).join(' ').length + (w ? 1 : 0);
+            return (
+              <span class="word" aria-hidden="true">
+                {[...word].map((c, j) => (
+                  <span class="ch" style={`--j:${offset + j}`}><span>{c}</span></span>
+                ))}
+              </span>
+            );
+          })}
+        </p>
+      </div>
+      {next.image && <img class="next-thumb" src={next.image} alt="" width="300" height="190" loading="lazy" />}
+      <span class="next-arrow" aria-hidden="true">→</span>
+    </a>
+  </article>
+</Base>
+
+<style>
+  .case {
+    --paper: #f4f2ee;
+    --ink: #1a1917;
+    --muted: #6b6862;
+    --tray: #e9e6e0;
+    --rule: rgba(26, 25, 23, 0.1);
+
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 40px 96px;
+    color: var(--ink);
+    font-family: 'Geist', var(--font);
+  }
+
+  /* Back pill with letter roll. */
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 14px 0 12px;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 1px rgba(26, 25, 23, 0.12);
+    color: var(--ink);
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    text-decoration: none;
+    transition: box-shadow 300ms ease, background-color 300ms ease;
+  }
+  .back:hover {
+    background: var(--tray);
+    box-shadow: inset 0 0 0 1px rgba(26, 25, 23, 0.18);
+  }
+  .back-arrow {
+    transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .back:hover .back-arrow {
+    transform: translateX(-3px);
+  }
+  .roll {
+    display: inline-flex;
+  }
+  /* Long names wrap between words; letters within a word stay together. */
+  .next-name {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 0.24em;
+  }
+  .word {
+    display: inline-flex;
+    white-space: nowrap;
+  }
+  .ch {
+    display: inline-block;
+    height: 1.2em;
+    overflow: hidden;
+    line-height: 1.2;
+  }
+  .ch > span {
+    display: block;
+    text-shadow: 0 1.2em 0 currentColor;
+    transition: transform 500ms cubic-bezier(0.65, 0, 0.35, 1) calc(var(--j) * 18ms);
+  }
+  .back:hover .ch > span,
+  .next:hover .ch > span,
+  .back:focus-visible .ch > span,
+  .next:focus-visible .ch > span {
+    transform: translateY(-1.2em);
+  }
+
+  /* App-icon tile in the project's colour. */
+  .app {
+    display: grid;
+    place-items: center;
+    width: 64px;
+    height: 64px;
+    margin-top: 56px;
+    border-radius: 19px;
+    background: var(--tone);
+    box-shadow:
+      0 16px 28px -14px rgba(26, 25, 23, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    color: #fff;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 28px;
+    line-height: 1;
+  }
+
+  .meta,
+  .label,
+  dt {
+    max-width: none;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .head {
+    display: grid;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-stretch: 100%;
+    font-size: clamp(44px, 1.8rem + 3vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+  .summary {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+    padding-top: 4px;
+  }
+  .summary p,
+  .story p {
+    font-size: clamp(17px, 1rem + 0.3vw, 20px);
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    max-width: 34em;
+  }
+  .live,
+  .talk {
+    justify-self: start;
+    color: var(--ink);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: rgba(26, 25, 23, 0.3);
+    text-underline-offset: 4px;
+    transition: text-decoration-color 250ms ease;
+  }
+  .live:hover,
+  .talk:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* Cover: rounded frame; the taller image drifts slowly while scrolling. */
+  .cover {
+    position: relative;
+    margin: 56px 0 0;
+    aspect-ratio: 1040 / 640;
+    border-radius: 20px;
+    overflow: hidden;
+    background: var(--tray);
+  }
+  .cover img {
+    position: absolute;
+    left: 0;
+    top: -7%;
+    width: 100%;
+    height: 114%;
+    object-fit: cover;
+    object-position: center top;
+    transform: translate3d(0, var(--py, 0px), 0);
+    will-change: transform;
+  }
+
+  /* Details beside the story. */
+  .body {
+    display: grid;
+    gap: 48px;
+    margin-top: 64px;
+  }
+  .details dl {
+    margin: 20px 0 0;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 10px;
+    padding: 16px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .row:last-child {
+    border-bottom: 1px solid var(--rule);
+  }
+  dd {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.005em;
+  }
+
+  .story {
+    display: grid;
+    gap: 20px;
+    align-content: start;
+  }
+  .story h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-stretch: 100%;
+    font-size: clamp(32px, 1.4rem + 1.6vw, 44px);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+  }
+  .story h3 {
+    margin-top: 20px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-size: 26px;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+  }
+  .built {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .built li {
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--tray);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .story .process {
+    color: var(--muted);
+  }
+  .story .result {
+    font-weight: 500;
+  }
+
+  /* Next project row. */
+  .next {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 24px;
+    margin-top: 96px;
+    padding-top: 72px;
+    border-top: 1px solid var(--rule);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .next-text {
+    display: grid;
+    gap: 10px;
+  }
+  .next-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-size: clamp(40px, 1.6rem + 3vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.035em;
+  }
+  .next-thumb {
+    display: none;
+    width: 300px;
+    height: 190px;
+    border-radius: 16px;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .next:hover .next-thumb {
+    transform: scale(1.03);
+  }
+  .next-arrow {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 22px;
+    transition:
+      background-color 350ms ease,
+      color 350ms ease,
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .next:hover .next-arrow,
+  .next:focus-visible .next-arrow {
+    background: var(--ink);
+    color: var(--paper);
+    transform: translateX(4px);
+  }
+  .case :focus-visible {
+    outline: 2px solid #c0603e;
+    outline-offset: 4px;
+  }
+
+  @media (min-width: 900px) {
+    .head {
+      grid-template-columns: 620fr 420fr;
+      gap: 0;
+    }
+    .body {
+      grid-template-columns: 340fr 660fr;
+      gap: 40px;
+    }
+    .next {
+      grid-template-columns: 1fr auto auto;
+      gap: 40px;
+    }
+    .next-thumb {
+      display: block;
+    }
+  }
+  @media (max-width: 600px) {
+    .case {
+      padding: 0 20px 72px;
+    }
+  }
+
+  /* Load sequence: content rises in, staggered. */
+  @media (prefers-reduced-motion: no-preference) {
+    .back,
+    .app,
+    .meta,
+    .head,
+    .cover {
+      animation: rise 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .app {
+      animation-delay: 60ms;
+    }
+    .meta {
+      animation-delay: 120ms;
+    }
+    .head {
+      animation-delay: 180ms;
+    }
+    .cover {
+      animation-delay: 260ms;
+    }
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ch > span,
+    .next-arrow,
+    .next-thumb,
+    .back-arrow {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Cover parallax: the image drifts at ~6% of scroll speed, kept inside its overscan.
+  const cover = document.querySelector<HTMLElement>('[data-cover]');
+  const img = document.querySelector<HTMLElement>('[data-parallax]');
+  if (cover && img && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    let ticking = false;
+    const update = () => {
+      const r = cover.getBoundingClientRect();
+      const max = r.height * 0.07;
+      const y = Math.max(-max, Math.min(max, (window.scrollY - (cover.offsetTop - innerHeight * 0.5)) * 0.06));
+      img.style.setProperty('--py', `${y.toFixed(1)}px`);
+      ticking = false;
+    };
+    update();
+    addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) requestAnimationFrame(update);
+        ticking = true;
+      },
+      { passive: true },
+    );
+  }
+</script>

@@ -1,0 +1,161 @@
+---
+// (07) — Testimonials, Lequon style: bordered quote cells with an orange
+// highlighted phrase, an initials tile, and the star rating.
+import SectionHead from './SectionHead.astro';
+import { reviews } from '../data/profile';
+
+const split = (quote: string, hl: string) => {
+  const i = quote.indexOf(hl);
+  return i === -1 ? [quote, '', ''] : [quote.slice(0, i), hl, quote.slice(i + hl.length)];
+};
+---
+
+<section class="lq testimonials" aria-labelledby="reviews-title">
+  <SectionHead num="07" label="Testimonials" id="reviews-title" before="What clients " accent="say" />
+  <ul class="grid">
+    {
+      reviews.map((r) => {
+        const [a, hl, b] = split(r.quote, r.highlight);
+        return (
+          <li class="cell">
+            <figure>
+              <blockquote>
+                <span class="mark" aria-hidden="true">
+                  ”
+                </span>
+                <p>
+                  {a}
+                  <span class="hl">{hl}</span>
+                  {b}
+                </p>
+              </blockquote>
+              <figcaption>
+                <span class="avatar" aria-hidden="true">
+                  {r.initials}
+                </span>
+                <span class="who">
+                  <span class="name">{r.source}</span>
+                  <span class="role">{r.project} · Upwork</span>
+                </span>
+                <span class="stars" aria-label="Rated 5 out of 5">
+                  <span aria-hidden="true">★★★★★</span> <span class="score">05/05</span>
+                </span>
+              </figcaption>
+            </figure>
+          </li>
+        );
+      })
+    }
+  </ul>
+</section>
+
+<style>
+  .lq {
+    --paper: #f4f2ee;
+    --ink: #111;
+    --muted: rgba(17, 17, 17, 0.7);
+    --line: rgba(17, 17, 17, 0.16);
+    --orange: #ff4a1f;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Bricolage Grotesque', 'Geist', sans-serif;
+    /* Same centred 1120px column as About and Selected work. */
+    padding-inline: max(32px, calc((100% - 1120px) / 2));
+  }
+  .grid {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+  .cell {
+    padding: 32px 24px;
+    border-bottom: 1px solid var(--line);
+  }
+  figure {
+    display: grid;
+    gap: 36px;
+    height: 100%;
+    margin: 0;
+    align-content: space-between;
+  }
+  blockquote {
+    position: relative;
+    margin: 0;
+    padding-left: 34px;
+  }
+  .mark {
+    position: absolute;
+    left: 0;
+    top: -0.12em;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 56px;
+    line-height: 1;
+    color: var(--orange);
+  }
+  blockquote p {
+    max-width: 40ch;
+    font-size: clamp(17px, 1rem + 0.35vw, 20px);
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  .hl {
+    color: var(--orange);
+  }
+  figcaption {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    background: var(--ink);
+    color: rgba(255, 255, 255, 0.6);
+    font-family: 'JetBrains Mono', 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+  }
+  .who {
+    display: grid;
+    gap: 2px;
+  }
+  .name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .role,
+  .score {
+    font-family: 'JetBrains Mono', 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .stars {
+    white-space: nowrap;
+    color: var(--orange);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  @media (min-width: 760px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .cell:nth-child(odd) {
+      border-right: 1px solid var(--line);
+    }
+  }
+</style>

@@ -1,0 +1,53 @@
+/* Design tokens. See docs/DESIGN.md. Components use these variables only. */
+:root {
+  --stone: #f4f2ee;
+  --spruce: #1a1917;
+  --river: #2f5d57;
+  --lichen: #6b6862; /* text-safe muted on paper (AA) */
+  --lichen-soft: #8e9e92; /* rules and borders only */
+  --brass: #a8823a;
+  --white: #ffffff;
+
+  --bg: var(--stone);
+  --text: var(--spruce);
+  --muted: var(--lichen);
+  --rule: var(--lichen-soft);
+  --accent: var(--river);
+  --on-accent: var(--white);
+  --surface: var(--white);
+  --placeholder: #cfd6d0;
+
+  --font: 'Geist', system-ui, sans-serif;
+  --fs-display: clamp(2.75rem, 1.6rem + 5vw, 6rem);
+  --fs-h2: clamp(2rem, 1.4rem + 2.4vw, 3.25rem);
+  --fs-h3: clamp(1.25rem, 1.15rem + 0.4vw, 1.5rem);
+  --fs-body: 1.0625rem;
+  --fs-small: 0.875rem;
+
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+  --space-5: 4rem;
+  --space-6: clamp(5rem, 3rem + 8vw, 10rem);
+
+  --max: 1440px;
+  --gutter: clamp(1rem, 0.5rem + 2vw, 2.5rem);
+  --measure: 65ch;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15201d;
+    --text: #e4e9e5;
+    --muted: #a3b2a8;
+    --rule: #3c4c46;
+    --accent: #7fb3a9;
+    --on-accent: #15201d;
+    --surface: #1e2d29;
+    --placeholder: #26362f;
+    color-scheme: dark;
+  }
+}

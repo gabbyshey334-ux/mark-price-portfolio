@@ -1,0 +1,405 @@
+---
+// Affinitty-style footer: drawn ribbons, "Let's talk" at full width, and a
+// design-tool panel with a copy-email chip and the two contact channels.
+import { profile } from '../data/profile';
+---
+
+<footer id="contact" class="footer" data-footer>
+  <svg class="ribbons" viewBox="0 0 600 1000" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="ribbon-a" x1="0%" y1="50%" x2="100%" y2="50%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.1)" />
+        <stop offset="50%" stop-color="#000" />
+        <stop offset="100%" stop-color="rgba(6,6,6,0.6)" />
+      </linearGradient>
+      <linearGradient id="ribbon-b" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.12)" />
+        <stop offset="55%" stop-color="#000" />
+        <stop offset="100%" stop-color="rgba(255,255,255,0.08)" />
+      </linearGradient>
+    </defs>
+    <!-- Our own curves: a looping ribbon on the left, a long arc on the right. -->
+    <path
+      class="ribbon"
+      pathLength="1"
+      stroke="url(#ribbon-a)"
+      d="M -70 650 C 30 700, 115 630, 138 568 C 160 506, 128 432, 82 438 C 30 446, 38 540, 102 562 C 182 590, 228 540, 234 452 C 244 330, 304 298, 430 262"
+    ></path>
+    <path
+      class="ribbon ribbon-2"
+      pathLength="1"
+      stroke="url(#ribbon-b)"
+      d="M 455 238 C 480 410, 545 520, 690 548"
+    ></path>
+  </svg>
+
+  <div class="inner">
+    <p class="kicker">Ready for the work ?</p>
+    <h2 class="big" data-fit-footer><span>Let’s talk</span></h2>
+
+    <div class="panel">
+      <span class="corner tl" aria-hidden="true"></span>
+      <span class="corner tr" aria-hidden="true"></span>
+      <span class="corner bl" aria-hidden="true"></span>
+      <span class="corner br" aria-hidden="true"></span>
+
+      <div class="cell">
+        <p class="label">Currently open for collaboration</p>
+        <button class="chip" type="button" data-copy={profile.email} aria-label={`Copy email address ${profile.email}`}>
+          <span class="chip-text">
+            <span class="addr">{profile.email}</span>
+            <span class="done" aria-hidden="true">Email copied!</span>
+          </span>
+          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+            <rect x="5" y="5" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"></rect>
+            <path d="M11 3.5V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h.5" fill="none" stroke="currentColor" stroke-width="1.5"></path>
+          </svg>
+          <span class="h h-tl" aria-hidden="true"></span>
+          <span class="h h-tr" aria-hidden="true"></span>
+          <span class="h h-bl" aria-hidden="true"></span>
+          <span class="h h-br" aria-hidden="true"></span>
+        </button>
+        <span class="visually-hidden" role="status" data-copy-status></span>
+      </div>
+
+      <div class="cell">
+        <p class="label">Connect on socials</p>
+        <ul class="socials">
+          <li>
+            <a class="upwork" href={profile.upwork} target="_blank" rel="noopener" aria-label="Hire Mark on Upwork">
+              <!-- Upwork logo (Simple Icons, CC0) -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M18.561 13.158c-1.102 0-2.135-.467-3.074-1.227l.228-1.076.008-.042c.207-1.143.849-3.06 2.839-3.06 1.492 0 2.703 1.212 2.703 2.703-.001 1.489-1.212 2.702-2.704 2.702zm0-8.14c-2.539 0-4.51 1.649-5.31 4.366-1.22-1.834-2.148-4.036-2.687-5.892H7.828v7.112c-.002 1.406-1.141 2.546-2.547 2.548-1.405-.002-2.543-1.143-2.545-2.548V3.492H0v7.112c0 2.914 2.37 5.303 5.281 5.303 2.913 0 5.283-2.389 5.283-5.303v-1.19c.529 1.107 1.182 2.229 1.974 3.221l-1.673 7.873h2.797l1.213-5.71c1.063.679 2.285 1.109 3.686 1.109 3 0 5.439-2.452 5.439-5.45 0-3-2.439-5.439-5.439-5.439z"></path>
+              </svg>
+            </a>
+          </li>
+          <li>
+            <a class="gmail" href={`mailto:${profile.email}`} aria-label="Email Mark on Gmail">
+              <!-- Gmail logo (Simple Icons, CC0) -->
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"></path>
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    position: relative;
+    overflow: hidden;
+    background: #000;
+    color: #fff;
+    font-family: 'Geist', var(--font);
+  }
+
+  /* Ribbons: drawn in once when the footer scrolls into view. */
+  .ribbons {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .ribbon {
+    fill: none;
+    stroke-width: 20;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  .footer.in .ribbon {
+    animation: draw 3s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+  .footer.in .ribbon-2 {
+    animation-delay: 0.32s;
+  }
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .inner {
+    position: relative;
+    /* Same centred 1120px column as the sections above. */
+    padding: 60px max(32px, calc((100% - 1120px) / 2)) 72px;
+    display: grid;
+  }
+  .kicker {
+    max-width: none;
+    text-align: center;
+    font-size: clamp(22px, 1.4rem + 0.8vw, 32px);
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .big {
+    margin: 20px 0 40px;
+    font-family: 'Geist', var(--font);
+    font-weight: 500;
+    font-stretch: 100%;
+    font-size: 30vw; /* fallback; the script fits it to the width */
+    line-height: 0.78;
+    letter-spacing: -0.035em;
+    white-space: nowrap;
+    overflow: hidden;
+    padding-bottom: 0.06em;
+  }
+  .big span {
+    display: inline-block;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .big span,
+    .kicker {
+      transform: translateY(40%);
+      opacity: 0;
+      transition:
+        transform 1s cubic-bezier(0.16, 1, 0.3, 1),
+        opacity 1s ease;
+    }
+    .footer.in .big span,
+    .footer.in .kicker {
+      transform: none;
+      opacity: 1;
+    }
+    .footer.in .big span {
+      transition-delay: 120ms;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ribbon {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Panel: like a selected frame in a design tool. */
+  .panel {
+    position: relative;
+    display: grid;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .corner {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #444;
+    z-index: 1;
+  }
+  .tl {
+    top: -5px;
+    left: -5px;
+  }
+  .tr {
+    top: -5px;
+    right: -5px;
+  }
+  .bl {
+    bottom: -5px;
+    left: -5px;
+  }
+  .br {
+    bottom: -5px;
+    right: -5px;
+  }
+  .cell {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+    padding: 32px;
+  }
+  .cell + .cell {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .label {
+    font-family: 'Geist', var(--font);
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  .chip {
+    position: relative;
+    justify-self: start;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    height: 40px;
+    padding: 0 12px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font: 500 14px/1 'Geist', var(--font);
+    letter-spacing: 0.02em;
+    cursor: pointer;
+  }
+  .chip-text {
+    display: grid;
+  }
+  .addr,
+  .done {
+    grid-area: 1 / 1;
+    transition:
+      opacity 250ms ease,
+      transform 250ms ease;
+  }
+  .done {
+    justify-self: center;
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  .chip.copied .addr {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  .chip.copied .done {
+    opacity: 1;
+    transform: none;
+  }
+  /* Selection handles appear on hover. */
+  .h {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #444;
+    transform: scale(0);
+    opacity: 0;
+    transition:
+      transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 200ms ease;
+  }
+  .h-tl {
+    top: -3px;
+    left: -3px;
+  }
+  .h-tr {
+    top: -3px;
+    right: -3px;
+  }
+  .h-bl {
+    bottom: -3px;
+    left: -3px;
+  }
+  .h-br {
+    bottom: -3px;
+    right: -3px;
+  }
+  .chip:hover .h,
+  .chip:focus-visible .h {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .socials {
+    display: flex;
+    gap: 4px;
+    margin: 0 0 0 -6px;
+    padding: 0;
+    list-style: none;
+  }
+  .socials a {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    color: #fff;
+    transition: color 220ms ease;
+  }
+  .socials a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(0);
+    transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .socials a:hover::before,
+  .socials a:focus-visible::before {
+    transform: scale(1);
+  }
+  .socials svg {
+    position: relative;
+    transition: color 220ms ease;
+  }
+  /* Brand colours on hover/focus. */
+  .socials .upwork:hover,
+  .socials .upwork:focus-visible {
+    color: #14a800;
+  }
+  .socials .gmail:hover,
+  .socials .gmail:focus-visible {
+    color: #ea4335;
+  }
+
+  .footer :focus-visible {
+    outline: 2px solid #ffff00;
+    outline-offset: 3px;
+  }
+
+  @media (min-width: 720px) {
+    .panel {
+      grid-template-columns: 1fr 1fr;
+    }
+    .cell + .cell {
+      border-top: 0;
+      border-left: 1px solid rgba(255, 255, 255, 0.1);
+    }
+  }
+</style>
+
+<script>
+  const footer = document.querySelector<HTMLElement>('[data-footer]');
+
+  // Fit "Let's talk" to the full width.
+  const big = document.querySelector<HTMLElement>('[data-fit-footer]');
+  const span = big?.querySelector('span');
+  const fit = () => {
+    if (!big || !span) return;
+    big.style.fontSize = '100px';
+    const ratio = big.clientWidth / span.scrollWidth;
+    big.style.fontSize = `${Math.floor(100 * ratio * 10) / 10}px`;
+  };
+  fit();
+  document.fonts?.ready.then(fit);
+  if (big) new ResizeObserver(fit).observe(big);
+
+  // Draw the ribbons and reveal the text once the footer is on screen.
+  if (footer) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          footer.classList.add('in');
+          io.disconnect();
+        }
+      },
+      { threshold: 0.25 },
+    );
+    io.observe(footer);
+  }
+
+  // Copy email; fall back to opening the mail app.
+  const chip = document.querySelector<HTMLButtonElement>('[data-copy]');
+  const status = document.querySelector<HTMLElement>('[data-copy-status]');
+  let timer: number | undefined;
+  chip?.addEventListener('click', async () => {
+    const email = chip.dataset.copy!;
+    try {
+      await navigator.clipboard.writeText(email);
+      chip.classList.add('copied');
+      if (status) status.textContent = 'Email copied';
+      clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        chip.classList.remove('copied');
+        if (status) status.textContent = '';
+      }, 2000);
+    } catch {
+      location.href = `mailto:${email}`;
+    }
+  });
+</script>

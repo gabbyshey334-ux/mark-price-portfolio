@@ -1,0 +1,250 @@
+---
+// Floating glass nav pill that expands into a menu (Kern-style).
+import { profile } from '../data/profile';
+
+interface Props {
+  /** Darker glass for pages without a photo hero, so white text stays readable. */
+  solid?: boolean;
+}
+const { solid = false } = Astro.props;
+
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/#about', label: 'About' },
+  { href: '/#work', label: 'Work' },
+  { href: '/#services', label: 'Services' },
+  { href: '/#contact', label: 'Contact' },
+];
+---
+
+<header class="nav-wrap">
+  <nav class:list={['pill', { solid }]} aria-label="Main" data-nav>
+    <div class="bar">
+      <a class="brand" href="/">{profile.name}</a>
+      <button class="toggle" type="button" aria-expanded="false" aria-controls="site-menu" data-nav-toggle>
+        <span class="visually-hidden">Menu</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+          <rect x="0" y="0" width="5" height="5" rx="1" />
+          <rect x="7" y="0" width="5" height="5" rx="1" />
+          <rect x="0" y="7" width="5" height="5" rx="1" />
+          <rect x="7" y="7" width="5" height="5" rx="1" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="menu" id="site-menu" data-nav-menu>
+      <div class="menu-inner">
+        <ul>
+          {
+            links.map((l, i) => (
+              <li style={`--i:${i}`}>
+                <a href={l.href}>{l.label}</a>
+              </li>
+            ))
+          }
+        </ul>
+        <div class="card" style={`--i:${links.length}`}>
+          <img src="/hero/portrait-thumb.jpg" alt="" width="44" height="32" />
+          <div>
+            <span>Based in Michigan</span>
+            <time data-clock>--:--</time>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<style>
+  .nav-wrap {
+    position: fixed;
+    top: 24px;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    justify-content: center;
+    padding-inline: 16px;
+    pointer-events: none;
+  }
+  .pill {
+    pointer-events: auto;
+    width: min(300px, 100%);
+    border-radius: 5px;
+    background: rgba(10, 10, 10, 0.35);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-family: 'Geist', var(--font);
+    overflow: hidden;
+    transition: background-color 400ms ease;
+  }
+  .pill.solid {
+    background: rgba(10, 10, 10, 0.82);
+  }
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    padding: 0 12px 0 21px;
+  }
+  .brand {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.012em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  .toggle {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #fff;
+    cursor: pointer;
+  }
+  .toggle svg {
+    fill: currentColor;
+    transition: transform 500ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .pill.open .toggle svg {
+    transform: rotate(180deg);
+  }
+  .pill :focus-visible {
+    outline: 2px solid #ffff00;
+    outline-offset: 2px;
+  }
+
+  /* Height animates via grid rows: 0fr (closed) to 1fr (open). */
+  .menu {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 550ms cubic-bezier(0.65, 0, 0.35, 1);
+  }
+  .pill.open .menu {
+    grid-template-rows: 1fr;
+  }
+  .menu-inner {
+    min-height: 0;
+    overflow: hidden;
+  }
+  ul {
+    margin: 0;
+    padding: 8px 21px 0;
+    list-style: none;
+  }
+  li a {
+    display: block;
+    color: #fff;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    text-decoration: none;
+  }
+  li a:hover {
+    color: #ffff00;
+  }
+  .card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 40px 21px 21px;
+    font-size: 11px;
+    line-height: 1.35;
+    text-transform: uppercase;
+  }
+  .card img {
+    width: 44px;
+    height: 32px;
+    object-fit: cover;
+    border-radius: 3px;
+  }
+  .card span {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .card time {
+    font-weight: 600;
+  }
+
+  /* Staggered rise for menu items. */
+  li,
+  .card {
+    opacity: 0;
+    transform: translateY(12px);
+    transition:
+      opacity 250ms ease,
+      transform 250ms ease;
+  }
+  .pill.open li,
+  .pill.open .card {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 450ms ease calc(150ms + var(--i) * 55ms),
+      transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1) calc(150ms + var(--i) * 55ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu,
+    .toggle svg,
+    li,
+    .card {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  const toggle = document.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+  const clock = document.querySelector<HTMLTimeElement>('[data-clock]');
+
+  if (nav && toggle) {
+    const setOpen = (open: boolean) => {
+      nav.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    };
+    toggle.addEventListener('click', () => setOpen(!nav.classList.contains('open')));
+    nav.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.classList.contains('open')) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    document.addEventListener('click', (e) => {
+      if (!nav.contains(e.target as Node)) setOpen(false);
+    });
+  }
+
+  // Over the photo the glass is light; past the hero, switch to the darker glass
+  // so the white text stays readable on light sections.
+  const heroEl = document.querySelector<HTMLElement>('[data-hero]');
+  if (nav && heroEl) {
+    const update = () => nav.classList.toggle('solid', window.scrollY > heroEl.offsetHeight - 90);
+    update();
+    addEventListener('scroll', update, { passive: true });
+  }
+
+  // Live local time for Mark (US Central).
+  if (clock) {
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      timeZone: 'America/Chicago',
+    });
+    const tick = () => (clock.textContent = fmt.format(new Date()));
+    tick();
+    setInterval(tick, 15_000);
+  }
+</script>

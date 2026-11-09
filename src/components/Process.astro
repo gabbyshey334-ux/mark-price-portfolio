@@ -1,0 +1,108 @@
+---
+// (05) — Process, Lequon style: a bordered 2x2 grid of numbered steps.
+import SectionHead from './SectionHead.astro';
+import { process } from '../data/profile';
+---
+
+<section class="lq process" aria-labelledby="process-title">
+  <SectionHead num="05" label="Process" id="process-title" before="How the " accent="work" after=" gets done." />
+  <ol class="grid">
+    {
+      process.map((step, i) => (
+        <li class="cell">
+          <span class="num" aria-hidden="true">
+            {String(i + 1).padStart(2, '0')}
+          </span>
+          <h3>{step.title}</h3>
+          <p class="body">{step.body}</p>
+          <p class="meta">
+            <span>{step.when}</span>
+            <span class="meta-strong">{step.what}</span>
+          </p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .lq {
+    --paper: #f4f2ee;
+    --ink: #111;
+    --muted: rgba(17, 17, 17, 0.7);
+    --line: rgba(17, 17, 17, 0.16);
+    --orange: #ff4a1f;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Bricolage Grotesque', 'Geist', sans-serif;
+    /* Same centred 1120px column as About and Selected work. */
+    padding-inline: max(32px, calc((100% - 1120px) / 2));
+  }
+  .grid {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+    border-right: 1px solid var(--line);
+  }
+  .cell {
+    display: grid;
+    align-content: start;
+    padding: 24px 24px 28px;
+    border-bottom: 1px solid var(--line);
+    transition: background-color 400ms ease;
+  }
+  .cell:hover {
+    background: rgba(17, 17, 17, 0.025);
+  }
+  .num {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 64px;
+    line-height: 0.95;
+    letter-spacing: -0.025em;
+    color: var(--orange);
+  }
+  h3 {
+    margin-top: 28px;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+  .body {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--muted);
+    max-width: 52ch;
+  }
+  .meta {
+    display: grid;
+    gap: 0;
+    max-width: none;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', 'Geist Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .meta-strong {
+    color: var(--ink);
+  }
+
+  @media (min-width: 760px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .cell:nth-child(odd) {
+      border-right: 1px solid var(--line);
+    }
+  }
+</style>

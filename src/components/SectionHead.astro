@@ -1,0 +1,49 @@
+---
+// Lequon-style section header: numbered label, then a bold headline with one
+// word in orange. Label format matches the rest of the site: "(04) — Process".
+interface Props {
+  num: string;
+  label: string;
+  id: string;
+  before?: string;
+  accent: string;
+  after?: string;
+}
+const { num, label, id, before = '', accent, after = '.' } = Astro.props;
+---
+
+<header class="lq-head">
+  <p class="lq-label">({num}) — {label}</p>
+  <h2 id={id} class="lq-title">
+    {before}<span class="lq-accent">{accent}</span>{after}
+  </h2>
+</header>
+
+<style>
+  .lq-head {
+    display: grid;
+    gap: 14px;
+    padding: 64px 0 28px;
+  }
+  .lq-label {
+    max-width: none;
+    font-family: 'Geist Mono', ui-monospace, monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(17, 17, 17, 0.7);
+  }
+  .lq-title {
+    font-family: 'Bricolage Grotesque', 'Geist', sans-serif;
+    font-weight: 700;
+    font-stretch: 100%;
+    font-size: clamp(40px, 1.6rem + 3.2vw, 64px);
+    line-height: 0.95;
+    letter-spacing: -0.045em;
+    color: #111;
+  }
+  .lq-accent {
+    color: #ff4a1f;
+  }
+</style>
